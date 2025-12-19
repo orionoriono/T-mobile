@@ -1,0 +1,176 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}Deploy service{% endblock %}
+
+{% block content %}
+<div class="row">
+
+  <!-- LEFT SIDE (form) -->
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title">Deploy service</h3>
+        <p class="text-muted small">General Information:</p>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="mb-3">
+            {{ form.customer_name }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.service_id }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Region:</label>
+            {{ form.region }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Manufacturer:</label>
+            {{ form.manufacturer }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Model Type:</label>
+            {{ form.model_type }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.serial_number }}
+          </div>
+
+          <button class="btn btn-pink" type="submit">Prepare Day 0 Config</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE (task preview) -->
+ <div class="col-md-8">
+
+    {% for t in tasks %}
+    <div class="card mt-4 shadow-sm">
+      <div class="card-body">
+
+        <!-- <h4 class="mb-3">Task #{{ t.id }}</h4>  -->
+        <h4 class="mb-3">Task #{{ forloop.counter }}</h4>
+
+        <p><strong>Service Name:</strong> {{ t.customer_name }}</p>
+        <p><strong>Service ID:</strong> {{ t.service_id }}</p>
+        <p><strong>Region:</strong> {{ t.region }}</p>
+        <p><strong>Manufacturer:</strong> {{ t.manufacturer|title }}</p>
+        <p><strong>Model Type:</strong> {{ t.model_type }}</p>
+
+        {% if t.manufacturer == "huawei" %}
+            <p><strong>MAC Address:</strong> {{ t.serial_number }}</p>
+        {% else %}
+            <p><strong>Serial Number:</strong> {{ t.serial_number }}</p>
+        {% endif %}
+
+
+        {% if t.reserved_ip %}
+          <p class="mt-2"><strong>Reserved IP:</strong> {{ t.reserved_ip }}</p>
+        {% endif %}
+
+        <button class="btn btn-pink w-100 mt-3">Check status</button>
+        <button class="btn btn-pink w-100 mt-2">Configure</button>
+
+      </div>
+    </div>
+    {% endfor %}
+
+    <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="delete" value="1" class="btn btn-danger"
+            onclick="return confirm('Delete all records?');">
+        Delete All
+    </button>
+</form>
+
+</div>
+
+
+</div>
+{% endblock %}
+
+
+#od tuka e promenata pri klik na cisco ili huawei i spored toa se dodava mac adresa ili serial number
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const manufacturerField = document.getElementById("id_manufacturer");
+    const serialField = document.getElementById("id_serial_number");
+
+    const serialWrapper = serialField.closest(".mb-3");
+    const serialLabel = serialWrapper.querySelector("label");
+
+    if (!serialLabel) {
+        let newLabel = document.createElement("label");
+        newLabel.classList.add("form-label");
+        newLabel.setAttribute("for", "id_serial_number");
+        newLabel.textContent = "Serial Number";
+        serialWrapper.prepend(newLabel);
+    }
+
+    const labelToChange = serialWrapper.querySelector("label");
+
+    function updateField() {
+        if (manufacturerField.value === "huawei") {
+            labelToChange.textContent = "MAC Address";
+            serialField.placeholder = "00:1A:2B:3C:4D:5E";
+            serialField.value = "";
+        } else {
+            labelToChange.textContent = "Serial Number";
+            serialField.placeholder = "ABC1234D5E6";
+            serialField.value = "";
+        }
+    }
+
+    manufacturerField.addEventListener("change", updateField);
+    updateField();
+
+    // --- NEW REGION LOGIC ---
+    const regionSelect = document.getElementById("id_region");
+    const regionInfoDiv = document.createElement("div");
+    const regionMessage = document.createElement("span");
+    regionInfoDiv.classList.add("alert", "alert-info");
+    regionInfoDiv.style.display = "none";
+    regionInfoDiv.appendChild(regionMessage);
+
+    const regionFieldWrapper = regionSelect.closest(".mb-3");
+    regionFieldWrapper.after(regionInfoDiv);
+
+    const ipFieldWrapper = document.getElementById("id_reserved_ip")?.closest(".mb-3");
+
+    const regionData = {
+        "region1": {name: "Регион 1", parent: null},
+        "region2": {name: "Регион 2", parent: "Регион 1"},
+        "region3": {name: "Регион 3", parent: null}
+    };
+
+    regionSelect.addEventListener("change", function() {
+        const selectedRegion = this.value;
+        if (selectedRegion && regionData[selectedRegion]) {
+            const region = regionData[selectedRegion];
+            if (region.parent) {
+                regionMessage.textContent = `${region.name} спаѓа под ${region.parent}. IP адресата ќе се повлече автоматски од ${region.parent}.`;
+                regionInfoDiv.style.display = "block";
+                if (ipFieldWrapper) ipFieldWrapper.style.display = "none";
+            } else {
+                regionInfoDiv.style.display = "none";
+                if (ipFieldWrapper) ipFieldWrapper.style.display = "block";
+            }
+        } else {
+            regionInfoDiv.style.display = "none";
+            if (ipFieldWrapper) ipFieldWrapper.style.display = "block";
+        }
+    });
+});
+</script>
+{% endblock %}

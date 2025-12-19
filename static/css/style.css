@@ -1,0 +1,33 @@
+/* topbar */
+.topbar {
+  background-color: #e20074; /* розова боја приближно како на сликата */
+  padding: 12px 20px;
+}
+
+/* logo */
+.logo {
+  width: 36px;
+  height: 36px;
+}
+
+/* pink button */
+.btn-pink {
+  background-color: #e20074;
+  border-color: #e20074;
+  color: white;
+}
+
+.btn-pink:hover {
+  opacity: 0.9;
+}
+
+/* card styling similar to image */
+.card {
+  margin-top: 10px;
+  border-radius: 8px;
+}
+
+.card-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+}

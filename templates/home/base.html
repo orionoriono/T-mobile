@@ -1,0 +1,46 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Rabota{% endblock %}</title>
+
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- custom css -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body>
+    <!-- Top nav -->
+    <nav class="topbar">
+      <div class="container-fluid d-flex align-items-center">
+        <div class="brand d-flex align-items-center">
+          <img src="{% static 'T-Mobile_logo_2022.svg.png' %}" alt="logo" class="logo me-3">
+          <span class="h5 text-white mb-0">Rabota</span>
+        </div>
+        <ul class="nav ms-4">
+          <li class="nav-item"><a class="nav-link text-white" href="/home/">Home</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="#">Devices</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="#">Pattons</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="#">Netbox API Test</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+
+    <!-- Bootstrap JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
