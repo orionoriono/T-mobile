@@ -1,0 +1,210 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}Deploy service{% endblock %}
+
+{% block content %}
+
+<style>
+/* Page styling */
+.page-title {
+    font-weight: 600;
+    color: #6f42c1;
+}
+
+/* Table styling */
+.services-table thead {
+    background: linear-gradient(90deg, #6f42c1, #8e44ad);
+    color: white;
+}
+
+.services-table tbody tr:hover {
+    background-color: #f3f0ff;
+    transition: 0.2s ease;
+}
+
+.services-table td {
+    vertical-align: middle;
+}
+
+/* Button styling */
+.btn-pop {
+    background-color: #6f42c1;
+    border: none;
+}
+
+.btn-pop:hover {
+    background-color: #5a32a3;
+}
+
+/* Modal styling */
+.custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    padding: 20px;
+}
+
+.modal-header {
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #6f42c1;
+}
+
+.modal-close {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.modal-close:hover {
+    background-color: #b02a37;
+}
+</style>
+
+<div class="container mt-4">
+
+    <h2 class="page-title mb-4">Service Table</h2>
+
+    <form method="get" style="margin-bottom:20px;">
+
+    <label>Select Operator:</label>
+    <select name="operator">
+        <option>All</option>
+        {% for op in operators %}
+            <option value="{{ op }}" {% if request.GET.operator == op %}selected{% endif %}>
+                {{ op }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <label style="margin-left:20px;">Select Location:</label>
+    <select name="location">
+        <option>All</option>
+        {% for loc in locations %}
+            <option value="{{ loc }}" {% if request.GET.location == loc %}selected{% endif %}>
+                {{ loc }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <label style="margin-left:20px;">Search by keyword:</label>
+    <input type="text" name="keyword" placeholder="Search services"
+           value="{{ request.GET.keyword }}">
+
+    <button type="submit" style="background:#e91e63;color:white;border:none;padding:6px 12px;">
+        Filter
+    </button>
+
+</form>
+
+    <table class="table table-bordered table-striped services-table">
+        <thead>
+            <tr>
+                <th>Operator</th>
+                <th>District</th>
+                <th>Service ID</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Speed</th>
+                <th>Start Date</th>
+                <th>Address</th>
+                <th>PoP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in page_obj %}
+            <tr>
+                <td>{{ s.operator|upper }}</td>
+                <td>{{ s.district }}</td>
+                <td>{{ s.service_sign }}</td>
+                <td>{{ s.service_type }}</td>
+                <td>{{ s.location }}</td>
+                <td>{{ s.speed }}</td>
+                <td>{{ s.contract_start_date|date:"d.m.Y" }}</td>
+                <td>{{ s.access_address }}</td>
+                <td>
+                    <button class="btn btn-sm btn-pop text-white"
+                            onclick="showPopInfo({{ s.id }})">
+                        PoP
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center">No services found</td>
+            </tr>
+            {% endfor %}
+
+
+        </tbody>
+    </table>
+
+</div>
+
+<!-- PoP Modal -->
+<div class="modal fade" id="popModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
+
+      <h4>PoP Information</h4>
+      <div id="popContent"></div>
+
+      <div class="text-end mt-3">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+            Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+function showPopInfo(id){
+
+    fetch(`/services/pop/${id}/`)
+    .then(response => response.json())
+    .then(data => {
+
+        if(data.error){
+            document.getElementById("popContent").innerHTML =
+                "<p>No PoP data found.</p>";
+        } else {
+
+            document.getElementById("popContent").innerHTML = `
+                <p><strong>Hostname:</strong> ${data.hostname || "N/A"}</p>
+                <p><strong>VSI:</strong> ${data.vsi || "N/A"}</p>
+                <p><strong>VSI ID:</strong> ${data.vsi_id || "N/A"}</p>
+                <p><strong>VSI Peers:</strong> ${data.vsi_peers || "N/A"}</p>
+                <p><strong>L3 Interface:</strong> ${data.l3_interface || "N/A"}</p>
+                <p><strong>VPN Instance:</strong> ${data.vpn_instance || "N/A"}</p>
+                <p><strong>Transport IP:</strong> ${data.transport_ip || "N/A"}</p>
+                <p><strong>Routed LAN Pool:</strong> ${data.routed_lan_pool || "N/A"}</p>
+                <p><strong>Service Port:</strong> ${data.service_port || "N/A"}</p>
+                <p><strong>Remark:</strong> ${data.remark || "N/A"}</p>
+                <p><strong>Interface Type:</strong> ${data.interface_type || "N/A"}</p>
+                <p><strong>Service VLAN:</strong> ${data.service_vlan || "N/A"}</p>
+                <p><strong>Rate Limit:</strong> ${data.rate_limit || "N/A"}</p>
+                <p><strong>Service:</strong> ${data.service || "N/A"}</p>
+            `;
+        }
+
+        var modal = new bootstrap.Modal(document.getElementById('popModal'));
+        modal.show();
+    });
+}
+</script>
+
+{% endblock %}

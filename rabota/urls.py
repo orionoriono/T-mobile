@@ -24,4 +24,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.deploy_service, name="root_home"),
     path("home/", include("home.urls")),
+    path("services/", include("services.urls")),
+    path("admin/", admin.site.urls),
 ]
