@@ -5,206 +5,285 @@
 {% block content %}
 
 <style>
-/* Page styling */
-.page-title {
-    font-weight: 600;
-    color: #6f42c1;
-}
+    /* T-Mobile Brand Colors */
+    :root {
+        --dt-magenta: #E20074;
+        --dt-grey-1: #262626;
+        --dt-grey-2: #4B4B4B;
+        --dt-grey-3: #6c757d;
+        --dt-light-grey: #f8f9fa;
+    }
 
-/* Table styling */
-.services-table thead {
-    background: linear-gradient(90deg, #6f42c1, #8e44ad);
-    color: white;
-}
+    /* Page styling */
+    .page-title {
+        font-weight: 700;
+        color: var(--dt-magenta);
+        border-bottom: 2px solid var(--dt-magenta);
+        padding-bottom: 10px;
+        margin-bottom: 25px;
+    }
 
-.services-table tbody tr:hover {
-    background-color: #f3f0ff;
-    transition: 0.2s ease;
-}
+    /* Table styling */
+    .services-table thead {
+        background-color: var(--dt-magenta);
+        color: white;
+    }
 
-.services-table td {
-    vertical-align: middle;
-}
+    .services-table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        border: none;
+    }
 
-/* Button styling */
-.btn-pop {
-    background-color: #6f42c1;
-    border: none;
-}
+    .services-table tbody tr:hover {
+        background-color: rgba(226, 0, 116, 0.05);
+        transition: 0.2s ease;
+    }
 
-.btn-pop:hover {
-    background-color: #5a32a3;
-}
+    .services-table td {
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
 
-/* Modal styling */
-.custom-modal {
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 400px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    padding: 20px;
-}
+    /* Button styling */
+    .btn-pop {
+        background-color: var(--dt-magenta);
+        border: none;
+        font-weight: 600;
+        padding: 5px 15px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
 
-.modal-header {
-    font-weight: 600;
-    font-size: 18px;
-    margin-bottom: 15px;
-    color: #6f42c1;
-}
+    .btn-pop:hover {
+        background-color: #b0005a;
+        /* Darker magenta */
+    }
 
-.modal-close {
-    background-color: #dc3545;
-    border: none;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    margin-top: 10px;
-}
+    /* Modal Styling */
+    .modal-header {
+        background-color: var(--dt-magenta);
+        color: white;
+        border-bottom: none;
+    }
 
-.modal-close:hover {
-    background-color: #b02a37;
-}
+    .modal-title {
+        font-weight: 700;
+    }
+
+    .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    .server-room-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        height: 100%;
+    }
+
+    .server-room-title {
+        color: var(--dt-magenta);
+        font-weight: 700;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-row {
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 4px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--dt-grey-2);
+    }
+
+    .info-value {
+        color: var(--dt-grey-1);
+        text-align: right;
+        font-family: inherit;
+    }
 </style>
 
-<div class="container mt-4">
+<div class="container mt-5">
 
-    <h2 class="page-title mb-4">Service Table</h2>
+    <h2 class="page-title">Services Table</h2>
 
-    <form method="get" style="margin-bottom:20px;">
+    <form method="get" class="row g-3 align-items-end mb-4 p-3 bg-light rounded shadow-sm">
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Customer</label>
+            <select name="operator" class="form-select">
+                <option>All</option>
+                {% for op in operators %}
+                <option value="{{ op }}" {% if request.GET.operator == op %}selected{% endif %}>
+                    {{ op }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Location</label>
+            <select name="location" class="form-select">
+                <option>All</option>
+                {% for loc in locations %}
+                <option value="{{ loc }}" {% if request.GET.location == loc %}selected{% endif %}>
+                <option value="{{ loc }}" {% if request.GET.location == loc %}selected{% endif %}>
+                    {{ loc }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Search</label>
+            <input type="text" name="keyword" class="form-control" placeholder="Search by keyword..."
+                value="{{ request.GET.keyword }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-pop w-100 text-white">
+                Filter
+            </button>
+        </div>
+    </form>
 
-    <label>Select Operator:</label>
-    <select name="operator">
-        <option>All</option>
-        {% for op in operators %}
-            <option value="{{ op }}" {% if request.GET.operator == op %}selected{% endif %}>
-                {{ op }}
-            </option>
-        {% endfor %}
-    </select>
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover services-table mb-0">
+            <thead>
+                <tr>
+                    <th>Service Id</th>
+                    <th>Service Type</th>
+                    <th>Customer</th>
+                    <th>Location</th>
+                    <th class="text-center" style="width: 100px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in page_obj %}
+                <tr>
+                    <td><strong>{{ s.service_sign }}</strong></td>
+                    <td>{{ s.service_type }}</td>
+                    <td>{{ s.operator|upper }}</td>
+                    <td>{{ s.location }}</td>
+                    <td class="text-center">
+                        <button
+                            class="btn btn-sm btn-pop text-white"
+                            onclick="showPopInfo({{ s.id }}, '{{ s.service_sign|escapejs }}')"
+                        >
+                            PoP
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">No services found matching your criteria.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <label style="margin-left:20px;">Select Location:</label>
-    <select name="location">
-        <option>All</option>
-        {% for loc in locations %}
-            <option value="{{ loc }}" {% if request.GET.location == loc %}selected{% endif %}>
-                {{ loc }}
-            </option>
-        {% endfor %}
-    </select>
-
-    <label style="margin-left:20px;">Search by keyword:</label>
-    <input type="text" name="keyword" placeholder="Search services"
-           value="{{ request.GET.keyword }}">
-
-    <button type="submit" style="background:#e91e63;color:white;border:none;padding:6px 12px;">
-        Filter
-    </button>
-
-</form>
-
-    <table class="table table-bordered table-striped services-table">
-        <thead>
-            <tr>
-                <th>Operator</th>
-                <th>District</th>
-                <th>Service ID</th>
-                <th>Type</th>
-                <th>Location</th>
-                <th>Speed</th>
-                <th>Start Date</th>
-                <th>Address</th>
-                <th>PoP</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in page_obj %}
-            <tr>
-                <td>{{ s.operator|upper }}</td>
-                <td>{{ s.district }}</td>
-                <td>{{ s.service_sign }}</td>
-                <td>{{ s.service_type }}</td>
-                <td>{{ s.location }}</td>
-                <td>{{ s.speed }}</td>
-                <td>{{ s.contract_start_date|date:"d.m.Y" }}</td>
-                <td>{{ s.access_address }}</td>
-                <td>
-                    <button class="btn btn-sm btn-pop text-white"
-                            onclick="showPopInfo({{ s.id }})">
-                        PoP
-                    </button>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="9" class="text-center">No services found</td>
-            </tr>
-            {% endfor %}
-
-
-        </tbody>
-    </table>
+    <!-- Retain existing pagination if any (not shown in original explicitly but good practice) -->
 
 </div>
 
 <!-- PoP Modal -->
-<div class="modal fade" id="popModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content p-3">
-
-      <h4>PoP Information</h4>
-      <div id="popContent"></div>
-
-      <div class="text-end mt-3">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-            Close
-        </button>
-      </div>
-
+<div class="modal fade" id="popModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="popModalLabel">Details Info</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <div id="popContent" class="row g-4">
+                    <!-- Content injected via JS -->
+                </div>
+                <div id="popLoading" class="text-center py-5" style="display:none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="popError" class="alert alert-danger m-3" style="display:none;"></div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
 <script>
-function showPopInfo(id){
+    function showPopInfo(id, serviceSign) {
+        const modalEl = document.getElementById('popModal');
+        const modalTitle = document.getElementById('popModalLabel');
+        const contentDiv = document.getElementById('popContent');
+        const loadingDiv = document.getElementById('popLoading');
+        const errorDiv = document.getElementById('popError');
 
-    fetch(`/services/pop/${id}/`)
-    .then(response => response.json())
-    .then(data => {
+        // Set Title
+        modalTitle.textContent = `PoP Info — ${serviceSign}`;
 
-        if(data.error){
-            document.getElementById("popContent").innerHTML =
-                "<p>No PoP data found.</p>";
-        } else {
+        // Reset State
+        contentDiv.innerHTML = '';
+        contentDiv.style.display = 'none';
+        errorDiv.style.display = 'none';
+        loadingDiv.style.display = 'block';
 
-            document.getElementById("popContent").innerHTML = `
-                <p><strong>Hostname:</strong> ${data.hostname || "N/A"}</p>
-                <p><strong>VSI:</strong> ${data.vsi || "N/A"}</p>
-                <p><strong>VSI ID:</strong> ${data.vsi_id || "N/A"}</p>
-                <p><strong>VSI Peers:</strong> ${data.vsi_peers || "N/A"}</p>
-                <p><strong>L3 Interface:</strong> ${data.l3_interface || "N/A"}</p>
-                <p><strong>VPN Instance:</strong> ${data.vpn_instance || "N/A"}</p>
-                <p><strong>Transport IP:</strong> ${data.transport_ip || "N/A"}</p>
-                <p><strong>Routed LAN Pool:</strong> ${data.routed_lan_pool || "N/A"}</p>
-                <p><strong>Service Port:</strong> ${data.service_port || "N/A"}</p>
-                <p><strong>Remark:</strong> ${data.remark || "N/A"}</p>
-                <p><strong>Interface Type:</strong> ${data.interface_type || "N/A"}</p>
-                <p><strong>Service VLAN:</strong> ${data.service_vlan || "N/A"}</p>
-                <p><strong>Rate Limit:</strong> ${data.rate_limit || "N/A"}</p>
-                <p><strong>Service:</strong> ${data.service || "N/A"}</p>
-            `;
-        }
-
-        var modal = new bootstrap.Modal(document.getElementById('popModal'));
+        // Show Modal immediately
+        const modal = new bootstrap.Modal(modalEl);
         modal.show();
-    });
-}
+
+        fetch(`/services/api/pop-detail/${id}/`)
+            .then(response => response.json())
+            .then(data => {
+                loadingDiv.style.display = 'none';
+
+                if (data.error) {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                } else {
+                    contentDiv.style.display = 'flex';
+                    contentDiv.innerHTML = `
+                <div class="col-md-6">
+                    <div class="server-room-card">
+                        <div class="server-room-title">Server Room 1</div>
+                        <div class="info-row"><span class="info-label">Prostorija:</span> <span class="info-value">${data.server_room_1.prostorija || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">Rack 1:</span> <span class="info-value">${data.server_room_1.rack || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">ODF:</span> <span class="info-value">${data.server_room_1.odf || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">Pozicija:</span> <span class="info-value">${data.server_room_1.pozicija || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">End Customer EQ Info:</span> <span class="info-value">${data.server_room_1.end_customer_eq_info || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">End Customer INT Info:</span> <span class="info-value">${data.server_room_1.end_customer_int_info || '-'}</span></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="server-room-card">
+                        <div class="server-room-title">Server Room 2</div>
+                        <div class="info-row"><span class="info-label">Prostorija:</span> <span class="info-value">${data.server_room_2.prostorija || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">Rack 1:</span> <span class="info-value">${data.server_room_2.rack || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">ODF:</span> <span class="info-value">${data.server_room_2.odf || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">Pozicija:</span> <span class="info-value">${data.server_room_2.pozicija || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">End Customer EQ Info:</span> <span class="info-value">${data.server_room_2.end_customer_eq_info || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">End Customer EQ INT Info:</span> <span class="info-value">${data.server_room_2.end_customer_int_info || '-'}</span></div>
+                    </div>
+                </div>
+            `;
+                }
+            })
+            .catch(err => {
+                loadingDiv.style.display = 'none';
+                errorDiv.textContent = "Failed to load data.";
+                errorDiv.style.display = 'block';
+                console.error(err);
+            });
+    }
 </script>
 
 {% endblock %}

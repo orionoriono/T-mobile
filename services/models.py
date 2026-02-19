@@ -2,20 +2,12 @@ from django.db import models
 
 
 class GeneralServiceInfo(models.Model):
-    OPERATOR_CHOICES = [
-        ("A1 MK", "A1 MK"),
-        ("MT", "Makedonski Telekom"),
-    ]
-
     SERVICE_ORIGIN_CHOICES = [
         ("ILL", "ILL"),
         ("MEP", "MEP"),
     ]
 
-    operator = models.CharField(
-        max_length=50,
-        choices=OPERATOR_CHOICES
-    )
+    operator = models.CharField(max_length=50, blank=True, null=True)
     district = models.CharField(max_length=255)
     service_sign = models.CharField(
         max_length=100,
@@ -45,25 +37,33 @@ class GeneralServiceInfo(models.Model):
 
 class MPLSPoP(models.Model):
     general_service = models.ForeignKey(
-        GeneralServiceInfo,
+        'GeneralServiceInfo',
         on_delete=models.CASCADE,
-        related_name="mpls_pops"
+        related_name='pop_entries'
     )
-    pop_hostname = models.CharField(max_length=255)
-    vsi = models.CharField(max_length=255)
-    vsi_id = models.CharField(max_length=255)
-    vsi_peers = models.TextField()
-    l3_interface = models.CharField(max_length=255)
-    vpn_instance = models.CharField(max_length=255)
-    transport_ip_address = models.GenericIPAddressField()
-    routed_lan_pool = models.CharField(max_length=255)
-    service_port = models.CharField(max_length=255)
-    remark = models.CharField(max_length=255, blank=True)
-    interface_type = models.CharField(max_length=255)
-    service_vlan = models.PositiveIntegerField()
-    rate_limit = models.CharField(max_length=100)
+
+    # Server Room 1
+    srv1_field_value   = models.CharField(max_length=255, blank=True, null=True)
+    srv1_room          = models.CharField(max_length=255, blank=True, null=True)
+    srv1_rack          = models.CharField(max_length=255, blank=True, null=True)
+    srv1_odf           = models.CharField(max_length=255, blank=True, null=True)
+    srv1_position      = models.CharField(max_length=255, blank=True, null=True)
+    srv1_cust_eq_info  = models.CharField(max_length=255, blank=True, null=True)
+    srv1_cust_int_info = models.CharField(max_length=255, blank=True, null=True)
+
+    # Server Room 2
+    srv2_field_value   = models.CharField(max_length=255, blank=True, null=True)
+    srv2_room          = models.CharField(max_length=255, blank=True, null=True)
+    srv2_rack          = models.CharField(max_length=255, blank=True, null=True)
+    srv2_odf           = models.CharField(max_length=255, blank=True, null=True)
+    srv2_position      = models.CharField(max_length=255, blank=True, null=True)
+    srv2_cust_eq_info  = models.CharField(max_length=255, blank=True, null=True)
+    srv2_cust_int_info = models.CharField(max_length=255, blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"PoP for {self.general_service.service_sign}"
     class Meta:
         verbose_name = "MPLS PoP"
         verbose_name_plural = "MPLS PoPs"
