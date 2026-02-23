@@ -1,30 +1,28 @@
+
+
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 
-from .models import GeneralServiceInfo, MPLSPoP
+from .models import GeneralCCInfo, ServerRoomDetails
 
 
 def services_dashboard(request):
-    """
-    Services table with filtering and pagination.
-    """
-    services_qs = GeneralServiceInfo.objects.all()
+    services_qs = GeneralCCInfo.objects.all()
 
-    # Distinct operators and locations for filter dropdowns
     operators = (
-        GeneralServiceInfo.objects.order_by("operator")
+        GeneralCCInfo.objects.order_by("operator")
         .values_list("operator", flat=True)
         .distinct()
     )
+
     locations = (
-        GeneralServiceInfo.objects.order_by("location")
+        GeneralCCInfo.objects.order_by("location")
         .values_list("location", flat=True)
         .distinct()
     )
 
-    # Apply filters from query params
     operator = request.GET.get("operator")
     if operator and operator != "All":
         services_qs = services_qs.filter(operator=operator)
@@ -57,37 +55,29 @@ def services_dashboard(request):
     )
 
 
-def pop_detail_api(request, service_id):
-    pop = MPLSPoP.objects.filter(general_service_id=service_id).first()
+def details_detail_api(request, service_id):
+    details = ServerRoomDetails.objects.filter(general_service_id=service_id).first()
 
-    if not pop:
-        return JsonResponse({"error": "No PoP found for this service."})
+    if not details:
+        return JsonResponse({"error": "No Details found for this service."})
 
     data = {
         "server_room_1": {
-            "prostorija": pop.srv1_room,
-            "rack": pop.srv1_rack,
-            "odf": pop.srv1_odf,
-            "pozicija": pop.srv1_position,
-            "end_customer_eq_info": pop.srv1_cust_eq_info,
-            "end_customer_int_info": pop.srv1_cust_int_info,
+            "prostorija": details.srv1_room,
+            "rack": details.srv1_rack,
+            "odf": details.srv1_odf,
+            "pozicija": details.srv1_position,
+            "end_customer_eq_info": details.srv1_cust_eq_info,
+            "end_customer_int_info": details.srv1_cust_int_info,
         },
         "server_room_2": {
-            "prostorija": pop.srv2_room,
-            "rack": pop.srv2_rack,
-            "odf": pop.srv2_odf,
-            "pozicija": pop.srv2_position,
-            "end_customer_eq_info": pop.srv2_cust_eq_info,
-            "end_customer_int_info": pop.srv2_cust_int_info,
+            "prostorija": details.srv2_room,
+            "rack": details.srv2_rack,
+            "odf": details.srv2_odf,
+            "pozicija": details.srv2_position,
+            "end_customer_eq_info": details.srv2_cust_eq_info,
+            "end_customer_int_info": details.srv2_cust_int_info,
         },
     }
 
     return JsonResponse(data)
-
-
-def pop_info(request, service_id):
-    """
-    Backwards-compatible alias for the original PoP endpoint.
-    Delegates to pop_detail_api to keep a single response shape.
-    """
-    return pop_detail_api(request, service_id)

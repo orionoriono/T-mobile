@@ -1,3 +1,4 @@
+
 {% extends "home/base.html" %}
 {% load static %}
 {% block title %}Deploy service{% endblock %}
@@ -176,7 +177,7 @@
                     <td class="text-center">
                         <button
                             class="btn btn-sm btn-pop text-white"
-                            onclick="showPopInfo({{ s.id }}, '{{ s.service_sign|escapejs }}')"
+                           onclick="showDetails({{ s.id }}, '{{ s.service_sign|escapejs }}')"
                         >
                             Details
                         </button>
@@ -221,7 +222,7 @@
 
 
 <script>
-    function showPopInfo(id, serviceSign) {
+    function showDetails(id, serviceSign) {
         const modalEl = document.getElementById('popModal');
         const modalTitle = document.getElementById('popModalLabel');
         const contentDiv = document.getElementById('popContent');
@@ -229,7 +230,7 @@
         const errorDiv = document.getElementById('popError');
 
         // Set Title
-        modalTitle.textContent = `PoP Info — ${serviceSign}`;
+        modalTitle.textContent = `Details — ${serviceSign}`;
 
         // Reset State
         contentDiv.innerHTML = '';
@@ -241,7 +242,7 @@
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
 
-        fetch(`/services/api/pop-detail/${id}/`)
+        fetch(`/services/api/details/${id}/`)
             .then(response => response.json())
             .then(data => {
                 loadingDiv.style.display = 'none';
@@ -255,10 +256,10 @@
                 <div class="col-md-6">
                     <div class="server-room-card">
                         <div class="server-room-title">Server Room 1</div>
-                        <div class="info-row"><span class="info-label">Prostorija:</span> <span class="info-value">${data.server_room_1.prostorija || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">Room:</span> <span class="info-value">${data.server_room_1.prostorija || '-'}</span></div>
                         <div class="info-row"><span class="info-label">Rack 1:</span> <span class="info-value">${data.server_room_1.rack || '-'}</span></div>
                         <div class="info-row"><span class="info-label">ODF:</span> <span class="info-value">${data.server_room_1.odf || '-'}</span></div>
-                        <div class="info-row"><span class="info-label">Pozicija:</span> <span class="info-value">${data.server_room_1.pozicija || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">Position:</span> <span class="info-value">${data.server_room_1.pozicija || '-'}</span></div>
                         <div class="info-row"><span class="info-label">End Customer EQ Info:</span> <span class="info-value">${data.server_room_1.end_customer_eq_info || '-'}</span></div>
                         <div class="info-row"><span class="info-label">End Customer INT Info:</span> <span class="info-value">${data.server_room_1.end_customer_int_info || '-'}</span></div>
                     </div>
@@ -266,10 +267,10 @@
                 <div class="col-md-6">
                     <div class="server-room-card">
                         <div class="server-room-title">Server Room 2</div>
-                        <div class="info-row"><span class="info-label">Prostorija:</span> <span class="info-value">${data.server_room_2.prostorija || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">Room:</span> <span class="info-value">${data.server_room_2.prostorija || '-'}</span></div>
                         <div class="info-row"><span class="info-label">Rack 1:</span> <span class="info-value">${data.server_room_2.rack || '-'}</span></div>
                         <div class="info-row"><span class="info-label">ODF:</span> <span class="info-value">${data.server_room_2.odf || '-'}</span></div>
-                        <div class="info-row"><span class="info-label">Pozicija:</span> <span class="info-value">${data.server_room_2.pozicija || '-'}</span></div>
+                        <div class="info-row"><span class="info-label">Position:</span> <span class="info-value">${data.server_room_2.pozicija || '-'}</span></div>
                         <div class="info-row"><span class="info-label">End Customer EQ Info:</span> <span class="info-value">${data.server_room_2.end_customer_eq_info || '-'}</span></div>
                         <div class="info-row"><span class="info-label">End Customer EQ INT Info:</span> <span class="info-value">${data.server_room_2.end_customer_int_info || '-'}</span></div>
                     </div>

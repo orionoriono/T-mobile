@@ -1,7 +1,8 @@
+
 from django.db import models
 
 
-class GeneralServiceInfo(models.Model):
+class GeneralCCInfo(models.Model):
     SERVICE_ORIGIN_CHOICES = [
         ("ILL", "ILL"),
         ("MEP", "MEP"),
@@ -35,11 +36,11 @@ class GeneralServiceInfo(models.Model):
         return f"{self.service_sign} - {self.location}"
 
 
-class MPLSPoP(models.Model):
+class ServerRoomDetails(models.Model):
     general_service = models.ForeignKey(
-        'GeneralServiceInfo',
+        'GeneralCCInfo',
         on_delete=models.CASCADE,
-        related_name='pop_entries'
+        related_name='server_details'
     )
 
     # Server Room 1
@@ -63,8 +64,8 @@ class MPLSPoP(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"PoP for {self.general_service.service_sign}"
-    class Meta:
-        verbose_name = "MPLS PoP"
-        verbose_name_plural = "MPLS PoPs"
+        return f"Details for {self.general_service.service_sign}"
 
+    class Meta:
+        verbose_name = "Server Room Details"
+        verbose_name_plural = "Server Room Details"
