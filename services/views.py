@@ -58,47 +58,31 @@ def services_dashboard(request):
 
 
 def pop_detail_api(request, service_id):
-    """
-    API endpoint returning PoP details for a given service.
-    URL: /services/api/pop-detail/<service_id>/
-    Response contains two server room objects.
-    """
-    try:
-        pop = MPLSPoP.objects.filter(general_service_id=service_id).first()
+    pop = MPLSPoP.objects.filter(general_service_id=service_id).first()
 
-        if not pop:
-            return JsonResponse(
-                {"error": "No PoP found for this service."},
-                status=404,
-            )
+    if not pop:
+        return JsonResponse({"error": "No PoP found for this service."})
 
-        data = {
-            "service_id": pop.general_service_id,
-            "oznaka": pop.general_service.service_sign,
-            "server_room_1": {
-                "field_value": pop.srv1_field_value,
-                "prostorija": pop.srv1_room,
-                "rack": pop.srv1_rack,
-                "odf": pop.srv1_odf,
-                "pozicija": pop.srv1_position,
-                "end_customer_eq_info": pop.srv1_cust_eq_info,
-                "end_customer_int_info": pop.srv1_cust_int_info,
-            },
-            "server_room_2": {
-                "field_value": pop.srv2_field_value,
-                "prostorija": pop.srv2_room,
-                "rack": pop.srv2_rack,
-                "odf": pop.srv2_odf,
-                "pozicija": pop.srv2_position,
-                "end_customer_eq_info": pop.srv2_cust_eq_info,
-                "end_customer_int_info": pop.srv2_cust_int_info,
-            },
-        }
+    data = {
+        "server_room_1": {
+            "prostorija": pop.srv1_room,
+            "rack": pop.srv1_rack,
+            "odf": pop.srv1_odf,
+            "pozicija": pop.srv1_position,
+            "end_customer_eq_info": pop.srv1_cust_eq_info,
+            "end_customer_int_info": pop.srv1_cust_int_info,
+        },
+        "server_room_2": {
+            "prostorija": pop.srv2_room,
+            "rack": pop.srv2_rack,
+            "odf": pop.srv2_odf,
+            "pozicija": pop.srv2_position,
+            "end_customer_eq_info": pop.srv2_cust_eq_info,
+            "end_customer_int_info": pop.srv2_cust_int_info,
+        },
+    }
 
-        return JsonResponse(data)
-
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse(data)
 
 
 def pop_info(request, service_id):

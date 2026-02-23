@@ -68,5 +68,3 @@ class MPLSPoP(models.Model):
         verbose_name = "MPLS PoP"
         verbose_name_plural = "MPLS PoPs"
 
-    def __str__(self):
-        return f"{self.pop_hostname} ({self.general_service.service_sign})"
